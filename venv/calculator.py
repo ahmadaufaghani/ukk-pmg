@@ -29,7 +29,7 @@ class Calculator:
             7: (1,1), 8: (1,2), 9: (1,3),
             4: (2,1), 5: (2,2), 6: (2,3),
             1: (3,1), 2: (3,2), 3: (3,3),
-            0: (4,1), '.': (4,2), '':(4,3)
+            0: (4,1), '.': (4,3)
         }
 
         self.operations = {"/" : "\u00F7", "*" : "\u00D7", "-" : "-", "+" : "+"}
@@ -44,9 +44,11 @@ class Calculator:
         self.create_operator_buttons()
         self.create_special_buttons()
 
+
     def create_special_buttons(self):
         self.create_equal_button()
         self.create_clear_button()
+        self.create_delete_button()
 
 
     def create_display_labels(self):
@@ -65,6 +67,12 @@ class Calculator:
         frame.pack(expand=True, fill="both")
         return frame
 
+    def delete_current_expression(self):
+        if self.current_expression != "":
+            hasil = self.current_expression[:-1]
+            self.current_expression = hasil
+            self.update_label()
+
     def add_to_expression(self, value):
         self.current_expression += str(value)
         self.update_label()
@@ -72,9 +80,18 @@ class Calculator:
     def create_digit_buttons(self):
 
         for digit, grid_value in self.digits.items():
-            button = tk.Button(self.buttons_frame, text=str(digit), bg=GREY, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
-                               borderwidth=1, command=lambda x =digit: self.add_to_expression(x))
-            button.grid(row=grid_value[0], column=grid_value[1], sticky=tk.NSEW)
+            if(digit == 0):
+                button = tk.Button(self.buttons_frame, text=str(digit), bg=GREY, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
+                                   borderwidth=1, command=lambda x=digit: self.add_to_expression(x))
+                button.grid(row=grid_value[0], column=grid_value[1], columnspan=2, sticky=tk.NSEW)
+            elif (digit == '.'):
+                button = tk.Button(self.buttons_frame, text=str(digit), bg=GREY, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
+                                   borderwidth=1, command=lambda x=digit: self.add_to_expression(x))
+                button.grid(row=grid_value[0], column=grid_value[1], sticky=tk.NSEW)
+            else :
+                button = tk.Button(self.buttons_frame, text=str(digit), bg=GREY, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
+                                   borderwidth=1, command=lambda x =digit: self.add_to_expression(x))
+                button.grid(row=grid_value[0], column=grid_value[1], sticky=tk.NSEW)
 
     def append_operator(self, operator):
         self.current_expression += operator
@@ -96,7 +113,6 @@ class Calculator:
             button.grid(row=i, column=4, sticky=tk.NSEW)
             i+=1
 
-
     def clear(self):
         self.current_expression = ""
         self.total_expression = ""
@@ -106,15 +122,18 @@ class Calculator:
     def create_clear_button(self):
         button = tk.Button(self.buttons_frame, text="AC", bg=DARKEN_GRAY, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
                            borderwidth=1, command=self.clear)
-        button.grid(row=0, column =1, columnspan=3, sticky=tk.NSEW)
+        button.grid(row=0, column =1, columnspan=2, sticky=tk.NSEW)
 
+    def create_delete_button(self):
+        button = tk.Button(self.buttons_frame, text="C", bg=DARKEN_GRAY, fg=LABEL_COLOR, font=DIGITS_FONT_STYLE,
+                           borderwidth=1, command=self.delete_current_expression)
+        button.grid(row =0, column =3, sticky=tk.NSEW)
 
     def evaluate(self):
         self.total_expression += self.current_expression
         self.update_total_label()
         try:
             self.current_expression = str(eval(self.total_expression))
-
             self.total_expression = ""
         except Exception as e:
             self.current_expression = "Error"
